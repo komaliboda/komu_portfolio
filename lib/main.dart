@@ -1,80 +1,73 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const KomaliPortfolio());
-}
+void main() => runApp(const VishnuPortfolio());
 
-class KomaliPortfolio extends StatelessWidget {
-  const KomaliPortfolio({super.key});
+class VishnuPortfolio extends StatelessWidget {
+  const VishnuPortfolio({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Komali Portfolio',
+      title: 'Vishnupriya Boda | Portfolio',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF100E19),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF8F5F1),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFB38AFF),
-          brightness: Brightness.dark,
+          seedColor: const Color(0xFF7655A6),
+          brightness: Brightness.light,
         ),
       ),
-      home: const PortfolioHome(),
+      home: const PortfolioPage(),
     );
   }
 }
 
-class PortfolioHome extends StatefulWidget {
-  const PortfolioHome({super.key});
+class PortfolioPage extends StatefulWidget {
+  const PortfolioPage({super.key});
 
   @override
-  State<PortfolioHome> createState() => _PortfolioHomeState();
+  State<PortfolioPage> createState() => _PortfolioPageState();
 }
 
-class _PortfolioHomeState extends State<PortfolioHome> {
-  static const purple = Color(0xFFB38AFF);
-  static const muted = Color(0xFFAAA5B8);
+class _PortfolioPageState extends State<PortfolioPage> {
+  static const purple = Color(0xFF7655A6);
+  static const ink = Color(0xFF292536);
+  static const muted = Color(0xFF706C79);
 
-  String selectedSection = 'Home';
+  String currentPage = 'Profile';
 
-  final List<String> sections = const [
-    'Home',
-    'About Me',
-    'Skills',
+  final pages = const [
+    'Profile',
     'Education',
     'Projects',
     'Contact',
   ];
 
-  void openSection(String section) {
-    setState(() {
-      selectedSection = section;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final wideScreen = MediaQuery.sizeOf(context).width >= 760;
+    final wide = MediaQuery.sizeOf(context).width >= 760;
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1180),
+            constraints: const BoxConstraints(maxWidth: 1100),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: wideScreen ? 40 : 20,
+                horizontal: wide ? 36 : 18,
                 vertical: 20,
               ),
               child: Column(
                 children: [
-                  _buildNavigation(wideScreen),
-                  const SizedBox(height: 24),
+                  _header(wide),
+                  const SizedBox(height: 22),
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
-                      child: _buildCurrentPage(wideScreen),
+                      child: currentPage == 'Profile'
+                          ? _profilePage(wide)
+                          : _detailsPage(currentPage),
                     ),
                   ),
                 ],
@@ -86,212 +79,212 @@ class _PortfolioHomeState extends State<PortfolioHome> {
     );
   }
 
-  Widget _buildNavigation(bool wideScreen) {
+  Widget _header(bool wide) {
     return Row(
       children: [
-        const Text(
-          'K.',
-          style: TextStyle(
-            color: purple,
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
+        const CircleAvatar(
+          radius: 21,
+          backgroundColor: purple,
+          child: Text(
+            'V',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 11),
         const Text(
-          'KOMALI',
+          'VISHNUPRIYA BODA',
           style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 3,
+            color: ink,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.2,
           ),
         ),
         const Spacer(),
-        if (wideScreen)
+        if (wide)
           Wrap(
             spacing: 4,
-            children: sections.map(_navigationButton).toList(),
+            children: pages.map(_navButton).toList(),
           )
         else
           PopupMenuButton<String>(
-            icon: const Icon(Icons.menu),
-            onSelected: openSection,
-            itemBuilder: (context) => sections
-                .map(
-                  (section) => PopupMenuItem<String>(
-                    value: section,
-                    child: Text(section),
-                  ),
-                )
+            icon: const Icon(Icons.menu_rounded, color: ink),
+            onSelected: (page) => setState(() => currentPage = page),
+            itemBuilder: (context) => pages
+                .map((page) => PopupMenuItem(value: page, child: Text(page)))
                 .toList(),
           ),
       ],
     );
   }
 
-  Widget _navigationButton(String section) {
-    final isSelected = selectedSection == section;
+  Widget _navButton(String page) {
+    final selected = page == currentPage;
 
     return TextButton(
-      onPressed: () => openSection(section),
+      onPressed: () => setState(() => currentPage = page),
       style: TextButton.styleFrom(
-        foregroundColor: isSelected ? purple : muted,
+        foregroundColor: selected ? purple : muted,
       ),
       child: Text(
-        section,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
+        page,
+        style: TextStyle(fontWeight: selected ? FontWeight.bold : null),
       ),
     );
   }
 
-  Widget _buildCurrentPage(bool wideScreen) {
-    switch (selectedSection) {
-      case 'About Me':
-        return _aboutPage();
-      case 'Skills':
-        return _skillsPage();
-      case 'Education':
-        return _educationPage();
-      case 'Projects':
-        return _projectsPage();
-      case 'Contact':
-        return _contactPage();
-      default:
-        return _homePage(wideScreen);
-    }
+  Widget _profilePage(bool wide) {
+    return SingleChildScrollView(
+      key: const ValueKey('Profile'),
+      child: Column(
+        children: [
+          _profileCard(wide),
+          const SizedBox(height: 20),
+          if (wide)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _aboutCard()),
+                const SizedBox(width: 20),
+                Expanded(child: _skillsCard()),
+              ],
+            )
+          else ...[
+            _aboutCard(),
+            const SizedBox(height: 16),
+            _skillsCard(),
+          ],
+        ],
+      ),
+    );
   }
 
-  Widget _homePage(bool wideScreen) {
+  Widget _profileCard(bool wide) {
     final photo = Container(
-      width: wideScreen ? 300 : 220,
-      height: wideScreen ? 350 : 260,
+      width: wide ? 230 : 190,
+      height: wide ? 260 : 220,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: const Color(0xFF211B30),
-        borderRadius: BorderRadius.circular(26),
-        border: Border.all(color: purple.withValues(alpha: 0.6), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: purple.withValues(alpha: 0.15),
-            blurRadius: 40,
-          ),
-        ],
+        color: const Color(0xFFE9E1F2),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: purple.withValues(alpha: 0.2), width: 2),
       ),
       child: Image.asset(
         'assets/profile.jpg',
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => const Center(
-          child: Icon(Icons.person, size: 100, color: purple),
+        errorBuilder: (context, error, stackTrace) => const Icon(
+          Icons.person_rounded,
+          size: 100,
+          color: purple,
         ),
       ),
     );
 
-    final introduction = Column(
+    final intro = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          'HELLO, I’M KOMALI',
+          'HELLO, I’M',
           style: TextStyle(
             color: purple,
-            fontWeight: FontWeight.bold,
             letterSpacing: 3,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         Text(
-          'Data Science Student\nDeveloper & Learner',
+          'Vishnupriya Boda',
           style: TextStyle(
-            fontSize: wideScreen ? 42 : 34,
-            height: 1.2,
+            color: ink,
+            fontSize: wide ? 40 : 32,
+            height: 1.12,
             fontWeight: FontWeight.w800,
           ),
         ),
+        const SizedBox(height: 14),
+        const Text(
+          'Data Science Student  •  Developer  •  Learner',
+          style: TextStyle(color: muted, fontSize: 16),
+        ),
         const SizedBox(height: 18),
         const Text(
-          'Welcome to my portfolio. Explore my background, skills, education, '
-          'and projects using the buttons above.',
-          style: TextStyle(color: muted, fontSize: 16, height: 1.7),
+          'I enjoy learning technology, solving problems, and creating useful projects.',
+          style: TextStyle(color: muted, height: 1.6, fontSize: 15),
         ),
-        const SizedBox(height: 26),
+        const SizedBox(height: 22),
         Wrap(
-          spacing: 12,
-          runSpacing: 10,
+          spacing: 10,
+          runSpacing: 8,
           children: [
             FilledButton.icon(
-              onPressed: () => openSection('About Me'),
-              icon: const Icon(Icons.person_outline),
-              label: const Text('About me'),
+              onPressed: () => setState(() => currentPage = 'Projects'),
+              icon: const Icon(Icons.work_outline_rounded),
+              label: const Text('View projects'),
               style: FilledButton.styleFrom(
                 backgroundColor: purple,
-                foregroundColor: const Color(0xFF171020),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                foregroundColor: Colors.white,
               ),
             ),
             OutlinedButton.icon(
-              onPressed: () => openSection('Projects'),
-              icon: const Icon(Icons.work_outline),
-              label: const Text('View projects'),
+              onPressed: () => setState(() => currentPage = 'Contact'),
+              icon: const Icon(Icons.mail_outline_rounded),
+              label: const Text('Contact'),
+              style: OutlinedButton.styleFrom(foregroundColor: purple),
             ),
           ],
         ),
       ],
     );
 
-    return SingleChildScrollView(
-      key: const ValueKey('Home'),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 500),
-        padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1B1727), Color(0xFF12101A)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(26),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: ink.withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
-        ),
-        child: wideScreen
-            ? Row(
-                children: [
-                  Expanded(child: introduction),
-                  const SizedBox(width: 36),
-                  photo,
-                ],
-              )
-            : Column(
-                children: [
-                  photo,
-                  const SizedBox(height: 30),
-                  introduction,
-                ],
-              ),
+        ],
+      ),
+      child: wide
+          ? Row(
+              children: [
+                photo,
+                const SizedBox(width: 32),
+                Expanded(child: intro),
+              ],
+            )
+          : Column(
+              children: [
+                photo,
+                const SizedBox(height: 24),
+                intro,
+              ],
+            ),
+    );
+  }
+
+  Widget _aboutCard() {
+    return _card(
+      title: 'About Me',
+      child: const Text(
+        'I’m pursuing a B.Tech in Computer Science with a focus on Data Science. '
+        'I’m interested in software development, data, and learning how technology '
+        'can solve real-world problems.',
+        style: TextStyle(color: muted, height: 1.75, fontSize: 15),
       ),
     );
   }
 
-  Widget _aboutPage() {
-    return _sectionPage(
-      'About Me',
-      [
-        const Text(
-          'Hello! I’m Komali, a B.Tech Computer Science student specializing '
-          'in Data Science. I enjoy learning new technologies, solving '
-          'problems, and building projects that can be useful in the real world.',
-          style: TextStyle(color: muted, fontSize: 17, height: 1.8),
-        ),
-        const SizedBox(height: 24),
-        _detailCard('My focus', 'Data Science, software development, and learning'),
-        const SizedBox(height: 14),
-        _detailCard('My goal', 'To keep growing as a developer and contribute to meaningful projects'),
-      ],
-    );
-  }
-
-  Widget _skillsPage() {
+  Widget _skillsCard() {
     const skills = [
       'Python',
       'Java',
@@ -304,152 +297,176 @@ class _PortfolioHomeState extends State<PortfolioHome> {
       'Natural Language Processing (NLP)',
     ];
 
-    return _sectionPage(
-      'Skills',
-      [
-        const Text(
-          'Technologies and topics I have worked with:',
-          style: TextStyle(color: muted, fontSize: 16),
-        ),
-        const SizedBox(height: 20),
-        ...skills.map(
-          (skill) => Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: purple,
-                  size: 21,
+    return _card(
+      title: 'Skills',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: skills
+            .map(
+              (skill) => Padding(
+                padding: const EdgeInsets.only(bottom: 11),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: purple,
+                      size: 19,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(skill, style: const TextStyle(color: ink, fontSize: 15)),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Text(skill, style: const TextStyle(fontSize: 17)),
-              ],
-            ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _detailsPage(String page) {
+    late String title;
+    late List<Widget> content;
+
+    switch (page) {
+      case 'Education':
+        title = 'Education';
+        content = [
+          _infoTile(
+            'B.Tech in Computer Science (Data Science)',
+            'Malineni Lakshmaiaha Engineering College\nCGPA: 8.8 / 10',
           ),
-        ),
-      ],
-    );
-  }
+          const SizedBox(height: 14),
+          _infoTile(
+            'Intermediate',
+            'Bhavana Junior College\nScore: 9.26',
+          ),
+        ];
+      case 'Projects':
+        title = 'Projects';
+        content = [
+          _infoTile(
+            'Crop Monitoring System Using Plant Scanning',
+            'A project focused on crop monitoring through plant scanning.',
+          ),
+          const SizedBox(height: 14),
+          _infoTile(
+            'Intelligent Data Capture Schedule Linking Layer',
+            'Hackathon project involving OCR, NLP, intelligent data capture, '
+                'and schedule linking for infrastructure.',
+          ),
+        ];
+      default:
+        title = 'Contact';
+        content = [
+          const Text(
+            'I’d be happy to connect about projects, learning, or opportunities.',
+            style: TextStyle(color: muted, height: 1.7),
+          ),
+          const SizedBox(height: 18),
+          const _ContactLine(
+            icon: Icons.email_outlined,
+            value: 'vishnu@123',
+          ),
+          const SizedBox(height: 12),
+          const _ContactLine(
+            icon: Icons.phone_outlined,
+            value: 'Add your phone number',
+          ),
+          const SizedBox(height: 12),
+          const _ContactLine(
+            icon: Icons.link_rounded,
+            value: 'Add your GitHub profile',
+          ),
+        ];
+    }
 
-  Widget _educationPage() {
-    return _sectionPage(
-      'Education',
-      [
-        _detailCard(
-          'B.Tech in Computer Science (Data Science)',
-          'Malineni Lakshmaiaha Engineering College\nCGPA: 8.8 / 10',
-        ),
-        const SizedBox(height: 16),
-        _detailCard(
-          'Intermediate',
-          'Bhavana Junior College\nScore: 9.26',
-        ),
-      ],
-    );
-  }
-
-  Widget _projectsPage() {
-    return _sectionPage(
-      'Projects',
-      [
-        _detailCard(
-          'Crop Monitoring System Using Plant Scanning',
-          'A project focused on crop monitoring through plant scanning.',
-        ),
-        const SizedBox(height: 16),
-        _detailCard(
-          'Intelligent Data Capture Schedule Linking Layer',
-          'A hackathon project involving OCR, NLP, intelligent data capture, '
-              'and schedule linking for infrastructure.',
-        ),
-      ],
-    );
-  }
-
-  Widget _contactPage() {
-    return _sectionPage(
-      'Contact',
-      [
-        const Text(
-          'I’d be happy to connect about projects, learning, or opportunities.',
-          style: TextStyle(color: muted, fontSize: 16, height: 1.7),
-        ),
-        const SizedBox(height: 22),
-        _contactLine(Icons.email_outlined, 'komu@gmail.com'),
-        _contactLine(Icons.phone_outlined, 'Add your phone number'),
-        _contactLine(Icons.link_rounded, 'Add your GitHub profile'),
-        const SizedBox(height: 10),
-        const Text(
-          'Replace the sample email and contact details with your real information before sharing.',
-          style: TextStyle(color: muted, fontSize: 12),
-        ),
-      ],
-    );
-  }
-
-  Widget _sectionPage(String title, List<Widget> content) {
     return SingleChildScrollView(
-      key: ValueKey(title),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          color: const Color(0xFF191622),
-          borderRadius: BorderRadius.circular(26),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
-        ),
+      key: ValueKey(page),
+      child: _card(
+        title: title,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 24),
-            ...content,
-          ],
+          children: content,
         ),
       ),
     );
   }
 
-  Widget _detailCard(String title, String detail) {
+  Widget _card({required String title, required Widget child}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF211B30),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: ink.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 7),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: ink,
+              fontSize: 25,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            detail,
-            style: const TextStyle(color: muted, height: 1.6),
-          ),
+          const SizedBox(height: 18),
+          child,
         ],
       ),
     );
   }
 
-  Widget _contactLine(IconData icon, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
+  Widget _infoTile(String title, String detail) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F0F8),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: purple),
-          const SizedBox(width: 12),
-          Flexible(child: Text(value, style: const TextStyle(fontSize: 16))),
+          Text(
+            title,
+            style: const TextStyle(
+              color: ink,
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(detail, style: const TextStyle(color: muted, height: 1.6)),
         ],
       ),
+    );
+  }
+}
+
+class _ContactLine extends StatelessWidget {
+  const _ContactLine({required this.icon, required this.value});
+
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.circle, size: 0), // Keeps this row layout simple.
+        Icon(icon, color: const Color(0xFF7655A6)),
+        const SizedBox(width: 12),
+        Text(value, style: const TextStyle(color: Color(0xFF292536))),
+      ],
     );
   }
 }
